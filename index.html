@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<!-- DAISY UI THEME -->
+<html data-theme="night"
+      lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible"
+        content="IE=edge" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+  <!-- VUE 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <!-- DAISY UI CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@2.46.1/dist/full.css"
+        rel="stylesheet"
+        type="text/css" />
+  <!-- TAILWIND CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FONT AWESOME CDN -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+        integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer" />
+
+  <title>Website Title</title>
+</head>
+
+<body>
+  <div id="app">
+    <div class="drawer">
+      <input id="my-drawer-3"
+             type="checkbox"
+             class="drawer-toggle" />
+      <div class="drawer-content flex flex-col">
+        <!-- Navbar -->
+        <div class="w-full navbar bg-base-300 sticky top-0">
+          <div class="flex-none lg:hidden">
+            <label for="my-drawer-3"
+                   class="btn btn-square btn-ghost">
+              <svg xmlns="http://www.w3.org/2000/svg"
+                   fill="none"
+                   viewBox="0 0 24 24"
+                   class="inline-block w-6 h-6 stroke-current">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </label>
+          </div>
+          <div class="flex-1 px-2 mx-2">
+            <a class="btn btn-ghost normal-case text-xl">{{websiteName}}</a>
+          </div>
+          <div class="flex-none hidden lg:block">
+            <ul class="menu menu-horizontal">
+              <!-- Navbar menu content here -->
+              <li class="rounded-lg">
+                <a @click="tab = 'character-test'">Character Test<i class="fa-solid fa-microscope"></i></a>
+              </li>
+              <li class="rounded-lg">
+                <a @click="tab = 'prayer-request'">Prayer Request<i class="fa-solid fa-person-praying"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-12">
+          <div v-if="tab === 'character-test'"
+               class="bg-base-200">
+            <div class="text-center">
+              <!-- Intro To Test -->
+              <div v-if="activeQuestion === -1"
+                   class="bg-gradient-to-br from-cyan-800 to-blue-800 p-10 rounded-md">
+                <h1 class="text-2xl mb-5">
+                  <i class="fa-solid fa-microscope fa-2xl mb-10 mr-5"></i>Welcome To The Character Test
+                </h1>
+                <h2 class="text-xl mb-10">
+                  So you think you're a good person?
+                </h2>
+                <button @click="activeQuestion+=1"
+                        class="btn btn-success">
+                  Find Out
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 gap-4">
+                <!-- Test Slide Iterable Template -->
+                <div v-for="(question, index) in testQuestions"
+                     :key="question.q"
+                     v-show="activeQuestion === index"
+                     class="bg-gradient-to-br from-cyan-800 to-blue-800 p-10 rounded-md col-span-1 w-full">
+                  <div>
+                    <h3 class="text-base mb-10">{{question.q}}</h3>
+
+                    <div v-for="(a, ai) in question.answers">
+                      <button v-if="a.clicked === false"
+                              class="btn btn-block mb-3"
+                              @click="answerPusher(index, ai, question.q, a, question.is_character)">
+                        {{a.text}}
+                      </button>
+                      <div v-if="a.answer_response_shown === true"
+                           class="alert shadow-lg mb-3 relative"
+                           :class="{'alert-success':a.is_correct, 'alert-error':!a.is_correct}">
+                        <div>
+
+                          <p class="col-span-7 m-auto">{{a.answer_response}}</p>
+                          <button v-if="showNextButton === true && a.is_correct === true"
+                                  class="btn btn-xs bg-gradient-to-br from-green-800 to-green-500 absolute -bottom-2 right-2 text-white"
+                                  @click="nextQuestion(skipAmount)">Next Question</button>
+                          <button v-if="a.is_correct === false"
+                                  class="btn btn-xs bg-gradient-to-br from-fuchsia-800 to-fuchsia-500 absolute -bottom-2 right-2 text-white"
+                                  @click="a.answer_response_shown = false">Dismiss</button>
+
+
+
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- characterAttributes Div -->
+                <div v-if="characterAttributes.length"
+                     class="bg-gradient-to-br from-green-800 to-teal-800 p-10 rounded-md text-left col-span-1">
+                  <h1 class="text-xl mb-10 text-center">Your Character</h1>
+                  <table class="bg-neutral table-fixed table-compact w-full rounded-md">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Answer</th>
+                        <th>Commandment</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(answer, index) in characterAttributes">
+                        <td>{{index + 1}})</th>
+                        <td>
+                          <div class="ml-3 inline badge badge-primary">
+                            {{answer.a}}
+                          </div>
+                        </td>
+                        <td>                        
+                            {{answer.c}}                          
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- SIDE DRAWER -->
+      <div class="drawer-side">
+        <label for="my-drawer-3"
+               class="drawer-overlay"></label>
+        <ul class="menu p-4 w-80 bg-base-100">
+          <!-- Sidebar content here -->
+          <li>
+            <a @click="tab = 'character-test'"><i class="fa-solid fa-microscope"></i>Character Test</a>
+          </li>
+          <li>
+            <a @click="tab = 'prayer-request'"><i class="fa-solid fa-person-praying"></i>Prayer Requests</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+  const { createApp } = Vue
+
+  createApp({
+
+    methods: {
+      answerPusher(question_index, answer_index, question, answer, char_attribute) {
+        let obj = {
+          // q: question,
+          a: answer.text,
+          c: answer.commandment
+          // c: char_attribute
+        }
+
+
+        console.log(question, answer.text, answer.is_correct)
+        if (answer.is_correct) {
+
+          console.log("skipBy: ", answer.skipBy)
+          
+
+          if (char_attribute) {
+            this.characterAttributes.push(obj)
+          }
+
+          this.returnNotAnswers(question_index, answer_index)
+
+
+          
+          this.skipAmount = answer.skipBy
+          
+          
+          // this.activeQuestion = answer.skipBy // might use this later
+
+          this.showNextButton = true
+          answer.answer_response_shown = true
+
+          return
+        } else {
+          answer.answer_response_shown = true
+          answer.clicked = true
+
+
+          return
+        }
+      },
+      //gets the index of the answered item and compares to other indexes in answers and sets the others answers to checked = true to hide them.
+      returnNotAnswers(question_index, answer_index) {
+        const currentAnswers = this.testQuestions[question_index].answers
+
+        const answersLength = currentAnswers.length;
+
+        const incorrectAnswersOnly = currentAnswers.filter((e, i) => i !== answer_index).forEach(e => e.clicked = true)
+      },
+      nextQuestion(inc) {
+        console.log(inc)
+        this.activeQuestion += inc
+        this.showNextButton = false
+      },
+    },
+    data() {
+      return {
+        websiteName: "Hidden Wisdom",
+        tab: "character-test", // character-test || prayer-request
+        activeQuestion: -1,
+        showNextButton: false,
+        skipAmount: 1,
+        characterAttributes: [],
+        testQuestions: [
+          {
+            q: "Have you ever told a lie?",
+            answers: [
+              {
+                text: "Yes",
+                is_correct: true,
+                clicked: false,
+                answer_response: 'Thank you for your honesty. Please proceed.',
+                skipBy: 1,
+              },
+              {
+                text: "No",
+                is_correct: true,
+                clicked: false,
+                answer_response: "Hmm, very suspicious. You may proceed.",
+                skipBy: 3,
+              },
+            ],
+            is_character: false,
+          },
+          {
+            q: "What do you call someone who tells lies?",
+            answers: [
+              {
+                text: "Liar",
+                is_correct: true,
+                clicked: false,
+                answer_response: 'Indeed, please proceed.',
+                skipBy: 1,
+              },
+              {
+                text: "Saint",
+                is_correct: false,
+                clicked: false,
+                answer_response:
+                  "Cmmon brother/sister, quit playin. Answer truthfully",
+                  skipBy: 1,
+              },
+            ],
+            is_character: false,
+
+          },
+          {
+            q: "So what does that make you?",
+            answers: [
+              {
+                text: "Liar",
+                is_correct: true,
+                clicked: false,
+                answer_response:
+                  "God's word says that no Liar will inherit eternal life.",
+                  skipBy: 1,
+                  commandment: `"...and all liars shall have their part in the lake which burns with fire and brimstone, which is the second death" - Revelation 21:8`,
+              },
+              {
+                text: "A Good Person?",
+                is_correct: false,
+                clicked: false,
+                answer_response:
+                  "Really? Good thing we are testing your character, you may need this more than you think.",
+                  skipBy: 1,
+              },
+            ],
+            is_character: true,
+          },
+          {
+            q: "Have you ever stolen something that wasn't your's regardless of it's value or your age when it occured?",
+            answers: [
+              {
+                text: "Yes",
+                is_correct: true,
+                clicked: false,
+                answer_response: 'I appreciate your honesty, please move to the next question.',
+                skipBy: 1,
+              },
+              {
+                text: "No",
+                is_correct: true,
+                clicked: false,
+                answer_response: 'Okay, please move to the next question.',
+                skipBy: 3,
+              },
+            ],
+            is_character: false,
+
+          },
+          {
+            q: "What do you call someone who steals things?",
+            answers: [
+              {
+                text: "Thief",
+                is_correct: true,
+                clicked: false,
+                answer_response: "This is true.",
+                skipBy: 1,
+              },
+              {
+                text: "A Stand Up Guy/Gal",
+                is_correct: false,
+                clicked: false,
+                answer_response:
+                  "Not a chance, you know the right answer. Don't hide from the truth",
+                  skipBy: 1,
+              },
+            ],
+            is_character: false,
+          },
+          {
+            q: "So what does that make you?",
+            answers: [
+              {
+                text: "Theif",
+                is_correct: true,
+                clicked: false,
+                answer_response: "Honesty... I like it. Please proceed.",
+                skipBy: 1,
+                commandment: `"You shall not steal." - Exodus 20:15`,
+              },
+              {
+                text: "I don't steal anymore so I'm not a theif",
+                is_correct: false,
+                clicked: false,
+                answer_response:
+                  "Just because it's in the past doesn't mean it doesn't matter anymore. If someone kills another person 10 years ago wouldn't they still be a murderer today? And any good judge would have to render justice to that murderer. The same goes with a theif.",
+                  skipBy: 1,
+              },
+              {
+                text: "Nothing, it doesn't matter if I didn't get caught",
+                is_correct: false,
+                clicked: false,
+                answer_response: `Scripture tells us that everything we do is being recorded by God in heaven and that we will have to give an account for it when our life comes to an end here on earth. "It is appointed for man to die once and then after that, the judgment".`,
+                skipBy: 1,
+              },
+            ],
+            is_character: true,
+          },
+          {
+            q: "Have you ever used God's name in vain? (This means using God's name as a cuss word to express disgust. It's called blasphemy.)",
+            answers: [
+              {
+                text: "Yes",
+                is_correct: true,
+                clicked: false,
+                answer_response:
+                  "Thank you for your honesty",
+                  skipBy: 1,
+              },
+              {
+                text: "No",
+                is_correct: true,
+                clicked: false,
+                answer_response: 'Please proceed',
+                skipBy: 2,
+              },
+            ],
+            is_character: false,
+          },
+          {
+            q: "Someone who uses God's name in vain is called a Blasphemer. So what would that make you?",
+            answers: [
+              {
+                text: "Still a Good Person",
+                is_correct: false,
+                clicked: false,
+                answer_response: "What's funny is that between you and I, you know the right answer here. That's called a conscience and it's trying to guide you the right direction.",
+                skipBy: 1,
+              },
+              {
+                text: "A Blasphemer",
+                is_correct: true,
+                clicked: false,
+                answer_response:
+                  "Imagine using your someones name that you love as a curse word. It's very disrespectful.",
+                  skipBy: 1,
+                  commandment: `"You shall not take the name of the Lord your God in vain, for the Lord will not hold him guiltless who takes His name in vain." - Exodus 20:7`,
+                },
+            ],
+            is_character: true,
+          },
+          {
+            q: "Have you ever looked at someone with Lust? (Looking lustfully means to look at someone and think sexual thoughts about them.)",
+            answers: [
+              {
+                text: "Yes",
+                is_correct: true,
+                clicked: false,
+                answer_response:
+                  `Jesus said this... "But I say to you that whoever looks at a woman to lust for her has already committed adultery with her in his heart. God's word also says... "No aldulterer will inherit the Kingdom of God" God takes lust very seriously as well, still feel like you're a good person? Please proceed.`,
+                  skipBy: 1,
+                },
+              {
+                text: "No",
+                is_correct: true,
+                clicked: false,
+                answer_response: `Need to add response HERE`,
+                skipBy: 2,
+              },
+            ],
+            is_character: false,
+          },
+          {
+            q: "Someone that has looked with lust has committed adultery in the eye's of God. So what does that make you?",
+            answers: [
+              {
+                text: "An Adulterer",
+                is_correct: true,
+                clicked: false,
+                answer_response: "What's funny is that between you and I, you know the right answer here. That's called a conscience and it's trying to guide you the right direction. Try to listen to it. It's designed by God to help you.",
+                skipBy: 1,
+                commandment: `"You shall not commit adultery." - Exodus 20:14`,
+              },
+              {
+                text: "Still a Good Person",
+                is_correct: false,
+                clicked: false,
+                answer_response:
+                  "Good try but no once again.",
+                  skipBy: 1,
+              },
+            ],
+            is_character: true,
+          },
+          {
+            q: "Have you ever had sex outside of marriage?",
+            answers: [
+              {
+                text: "Yes",
+                is_correct: true,
+                clicked: false,
+                answer_response: `Need to add response HERE`,
+                skipBy: 1,
+              },
+              {
+                text: "No",
+                is_correct: true,
+                clicked: false,
+                answer_response: `Need to add response HERE`,
+                skipBy: 2,
+              },
+            ],
+            is_character: false,
+          },
+          {
+            q: "Someone that has sex outside of marriage is called a fornicator, what would that make you?",
+            answers: [
+              {
+                text: "A Fornicator",
+                is_correct: true,
+                clicked: false,
+                answer_response: "Appeciate the honesty.",
+                skipBy: 1,
+                commandment: `"Be not deceived: neither fornicators...shall inherit the kingdom of God" - 1 Corinthians 6:9-10`
+              },
+              {
+                text: "Still a Good Person",
+                is_correct: false,
+                clicked: false,
+                answer_response:
+                  "Good try but no once again.",
+                  skipBy: 1,
+              },
+            ],
+            is_character: true,
+          },
+        ],
+      }
+    },
+  }).mount("#app")
+</script>
+
+</html>
